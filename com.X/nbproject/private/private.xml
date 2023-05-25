@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/terminal.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/sx1278.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/usbdriver.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/debugprint.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/globalInclude.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/hal.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/ringBuffer.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer_defs.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/traps.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/timerdriver.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/sx1278.c</file>
+        </group>
+    </open-files>
+</project-private>
