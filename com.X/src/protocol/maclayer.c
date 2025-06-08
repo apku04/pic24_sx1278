@@ -29,6 +29,7 @@
 */
 
 #include "maclayer.h"
+#include "../mcc_generated_files/tmr1.h"
 
 
 /*
@@ -118,6 +119,9 @@ void dcfInit(void)
     Mlme.mSlotTime = 8;
     Mlme.mDIFSTtime = 24;
     Mlme.mBcast = YES;
+
+    // Seed the PRNG using the running timer to ensure varying values
+    srand(TMR1_Counter16BitGet());
 }
 
 /*==============================================================================
@@ -419,10 +423,9 @@ GLOB_RET backOff(void)
 void selectBackoff(void)
 {
   //char s[90];
-  
-   srand(Mlme.mAddr);
+
   // get a random number within [0-cw]
-  Mlme.mBackoffTimer = ( rand() % Mlme.mCurrentCW ) + 1; 
+  Mlme.mBackoffTimer = ( rand() % Mlme.mCurrentCW ) + 1;
   //sprintf(s,"selectBackoff | Mlme.mBackoffTimer %d\n", Mlme.mBackoffTimer);
   //print(s);
 }
