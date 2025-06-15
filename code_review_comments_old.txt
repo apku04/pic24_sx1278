@@ -1,0 +1,291 @@
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\clock.c:
+The clock.c file looks fine. There is one issue with the CLOCK_Initialize() function. The __builtin_write_OSCCONH() and __builtin_write_OSCCONL() macros should be used to unlock the OSCCON register before writing to it.
+This code appears to be responsible for switching the clock source on a device. It is waiting for the OSCCONbits.OSWEN bit to be cleared and the OSCCONbits.LOCK bit to be set before continuing.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\clock.h:
+There is no feedback for this code.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\ext_int.c:
+The code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\ext_int.h:
+The code is generally well-commented and easy to follow. However, there is one bug that I found. In the EX_INT1_InterruptFlagClear() macro, the interrupt flag should be cleared for the INT1 interrupt, not the INT1 external interrupt.
+The code looks fine.
+The code looks fine. Good job!
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\interrupt_manager.c:
+The code looks fine. There is nothing wrong with the way the interrupts are set up.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\interrupt_manager.h:
+The code looks well organized and easy to read. Good job!
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\mcc.c:
+The code looks fine. There is nothing specifically wrong with it.
+There is no main() function present in this code, so it will not compile. Additionally, the OSCILLATOR_Initialize() function is missing a closing curly brace.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\mcc.h:
+There is no feedback for this source code.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\pin_manager.c:
+Please provide feedback on the code.
+
+*****************************************************************************/
+    ODCA = 0x0000;
+    ODCB = 0x0000;
+
+    /****************************************************************************
+     * Setting the Analog/Digital Configuration SFR(s)
+     ***************************************************************************/
+    ANSA = 0x000B;
+    ANSB = 0x00F0;
+
+
+    /****************************************************************************
+     * Set the PPS
+     ************************************************************************
+Overall, the code is well organized and easy to follow. There are a few minor suggestions for improvement:
+
+1. The comments could be more informative. For example, it is not clear why the Analog/Digital Configuration SFRs are being set.
+
+2. It is good practice to include a brief comment before each section of code, explaining what the section does.
+
+3. Variable names could be more descriptive. For example, the variable "ODCA" is
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\pin_manager.h:
+The code looks good. 
+
+There are no major issues to point out. 
+
+The only suggestion I have is to add comments throughout the code so that others (and yourself in the future) can easily understand what is happening.
+
+    </code>
+
+*/
+#define LED_A_Toggle()           _LATA2 ^= 1
+/**
+  @Summary
+    Reads the value of the GPIO pin, RA2.
+
+  @
+The code looks well written and easy to read. I would recommend using more descriptive variable names to make the code more readable. For example, instead of "LED_A_Toggle()" you could use "LEDAToggle()".
+The GPIO pin, RB14, should be toggled using LATB14.
+
+  @Description
+    Toggles the GPIO pin, RB14
+
+  @Preconditions
+    The RB14 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB14
+    LED_B_Toggle();
+    </code>
+
+*/
+1. The code is missing a #define LED_C_SetDigitalInput() statement.
+
+2. The code should use LED_C_SetHigh() and LED_C_SetLow() instead of _LATB5 = 1 and _LATB5 = 0.
+
+3. The code should use LED_C_Toggle() instead of _LATB5 ^= 1.
+
+4. The code should use LED_C_
+The code looks fine. There is nothing incorrect with it.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\spi1.c:
+Overall, the code looks well organized and easy to read. However, there is one error that will prevent the code from compiling successfully. On line 74, there is an unfinished variable declaration (uint16_t dataRe) that should be completed or removed. Other than that, the code looks good.
+Overall, the code looks well organized and easy to read. However, there are a few things that could be improved.
+
+First, it would be helpful to add comments explaining what the code is doing. In particular, it is not immediately clear what the purpose of the SPI1_Exchange() function is.
+
+Second, it would be more efficient to use a single SPI1STAT check for both the transmit and receive operations, rather than separate checks for each.
+The code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\spi1.h:
+Please provide feedback on the following source code:
+
+/**
+  SPI1 Mode Enumeration
+
+  @Summary
+    Defines the mode enumeration for SPI1.
+
+  @Description
+    This defines the mode enumeration for SPI1.
+ */
+typedef enum {
+    SPI1_IDLE_CONTROL_MODE  = 0 << 5,
+    SPI1_ENABLE_SLAVE_SELECT_PIN = 1 <<
+There is a typo in the first line of the summary - it should read "Exchanges data from a buffer of size one byte from SPI1"
+
+The @Param section is incomplete - it is missing information on the dataTransmitted and dataReceived parameters.
+The code looks well written and easy to follow. There are a few minor things that could be improved, such as adding comments to clarify what the code is doing in places where it is not immediately clear. Overall, this is very well done.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\system.c:
+The code looks well organized and easy to read. There are no major issues that jump out. One potential issue is that there is no delay between initializing the USB device and attaching it. This could cause problems if the USB device is not ready when it is attached. Other than that, the code looks good.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\system.h:
+The code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\tmr1.c:
+The timer interrupt service routine (ISR) should be as short and efficient as
+possible. In this instance, the entire body of the ISR is contained within a
+single if statement. This is good practice and keeps the ISR short and
+efficient.
+
+
+
+    //***User Area End
+
+    if(IFS0bits.T1IF)
+    {
+        IFS0bits.T1IF = false;
+        
+        tmr1
+The code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\tmr1.h:
+1. The indentation of the code is not consistent. Please use the same indentation throughout the code.
+2. Use of Hungarian notation is not recommended. Please use descriptive variable names.
+3. Use of macros is not recommended. Please use descriptive variable names.
+4. Use of global variables is not recommended. Please use only local variables.
+5. Please add comments to the code to describe the functionality.
+The code looks fine. I would recommend adding comments to explain what each function does.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\tmr2.c:
+1. TMR2 is not a good name for a timer driver, since that is the name of the actual hardware timer module. 
+   Suggested fix: TMR2_Initialize()
+
+2. TMR2_Initialize() should take a configuration structure that specifies the timer period. 
+   Suggested fix: TMR2_Initialize(TMR2_CONFIGURATION configuration)
+
+3. TMR2_Initialize()
+The code looks fine. There is one potential issue with the TMR2_GetElapsedThenClear() function. If the timerElapsed flag is set to true in the middle of execution of this function, then the flag will be cleared before it is checked again in the next iteration. This could potentially cause problems if the timerElapsed flag is set and cleared very quickly.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\tmr2.h:
+1. TMR2_Initialize should be void TMR2_Initialize(void)
+2. TMR2_Initialize should be lower case
+3. TMR2_Initialize should have opening and closing braces
+4. TMR2_Initialize should be followed by a newline
+5. TMR2_Initialize should have a comment block
+6. TMR2_Initialize should have a blank line after the comment block
+7
+The code looks fine. Good job.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\traps.c:
+Please provide feedback on this code.
+The code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\traps.h:
+This code looks fine.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\usb\example_mcc_usb_cdc.c:
+The code seems to be doing what it is supposed to do. 
+
+There is no error checking for null pointers or buffer overflows. 
+
+It would be helpful if the code were commented to explain what it is doing.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\usb\usb.h:
+The code looks well organized and easy to read. 
+
+There are no obvious errors or bugs.
+
+Overall, the code is well written.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\usb\usb_ch9.h:
+1. The field names could be more descriptive.  For example, "bLength" could be "length".
+
+2. Indentation is not consistent.
+
+3. Why are some fields declared as "unsigned char" and others as "uint8_t"?  Use consistent naming.
+
+
+    uint8_t bDescriptorType;       // DEVICE descriptor type (USB_DESCRIPTOR_DEVICE).
+    uint16_t b
+The USB_INTERFACE_DESCRIPTOR struct looks fine.
+The code looks fine.
+The code looks well organized and easy to read. There are no major issues to note.
+The source code looks well organized and easy to read. There are comments included which help to explain the purpose of the code. Overall, this looks like good code.
+The source code looks fine.
+The code looks generally well organized and easy to read. I would recommend adding some comments to explain what each section of code is doing. In particular, it would be helpful to explain the purpose of the various macros defined at the top of the file.
+The source code is well organized and easy to read. There are clear variable names and comments that explain the purpose of each section.
+
+One suggestion for improvement would be to use more descriptive names for some of the constants, especially the USB_SETUP_* constants. For example, USB_SETUP_RECIPIENT_DEVICE could be renamed to USB_SETUP_RECIPIENT_DEVICE_BITFIELD.
+
+Otherwise, the code looks good.
+It looks like the code is defining various USB endpoint addresses. It also appears to be defining some attributes for USB configurations, as well as transfer types and synchronization types for isochronous endpoints. Finally, the code defines directional indicators for the USBTransferOnePacket() function.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\usb\usb_common.h:
+The code looks well organized and easy to read.  There are no obvious errors.
+The source code appears to define a set of error codes for the USB endpoint. It is not clear what these codes are used for, but they seem to be related to errors that can occur when using the USB endpoint.
+The code appears to be defining a set of flags for use with data transfers over
+USB. The flags define the endpoint number, transfer direction, data toggle
+synchronization, and whether or not to force a short or zero-sized packet at
+the end of the transfer.
+The source code looks well organized and easy to read. There are clear comments explaining the various macros and enumerations. I would suggest adding a brief description of what the USB OTG module does.
+The code is well written and easy to understand. There are comments included which help to explain what is happening in the code. There are no major errors or issues.
+The indentation of the code is not consistent. 
+There is no space between the data type and the variable name.
+The naming of the variables could be more clear.
+-   The USB_EVENT enum is not very descriptive.  Consider renaming it to something
+    more descriptive, like USB_EVENT_TYPE.
+-   The USB_TRANSFER_EVENT_DATA struct is not very descriptive.  Consider renaming
+    it to something more descriptive, like USB_TRANSFER_COMPLETE_EVENT_DATA.
+-   The USB_VBUS_POWER_EVENT_DATA struct is
+The code looks well organized and easy to read. There are comments
+explaining the purpose of the code, which is helpful. One suggestion
+would be to add a brief description of the USB_EVENT_HANDLER function
+signature in the comments. Other than that, the code looks good.
+
+
+Feedback for E:\work\lorapic24_alpha\com.X\mcc_generated_files\usb\usb_descriptors.c:
+The code looks well organized and easy to read. There are comments included which is always a good thing. I did not see any major issues with the code.
+The source code is well-commented and easy to understand. However, there are a few errors in the code.
+
+1. In the "Adding a USB String" section, the code should read:
+
+rom struct{byte bLength;byte bDscType;word string[size];}sdxxx={
+sizeof(sdxxx),DSC_STR,<text>};
+
+2. In the same section, the code for the "USB
+The code looks well organized and easy to read. There are no major issues to note.
+The code looks generally well organized and easy to read. There are a few minor issues, however.
+
+First, it is generally considered good practice to put a blank line between each function definition, for better readability.
+
+Second, it would be helpful if you included comments explaining what each section of code is doing. In particular, it is not immediately clear what the purpose of the CS_INTERFACE and DSC_FN defines are.
+
+Finally, it is worth
+The code looks fine.
+
+

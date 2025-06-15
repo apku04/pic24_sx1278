@@ -43,8 +43,10 @@
 ** =============================================================================
 */
 
-GLOB_RET network_interface(Direction iKey, uint8_t addr, uint8_t len, void *frame);
-void opmInit(void);
+GLOB_RET network_interface(Direction iKey);
+void network_layer_init(PacketBuffer *pRxBuf, PacketBuffer *pTxBuf);
+RoutingEntry* get_routing_table(void);
+uint8_t get_routing_entries(void);
 
 /*
 ** ==========================================================================
@@ -53,14 +55,10 @@ void opmInit(void);
 */
 
 
-
 /*
  ** ==========================================================================
  **                       Extern Global variables
  ** ==========================================================================
  */
-
-extern nlme Nlme;
-
 
 #endif //OPM_H

@@ -25,6 +25,11 @@
 
 #include "usbdriver.h"
 
+typedef struct {
+    PacketBuffer *pktRxBuf;
+    PacketBuffer *pktTxBuf;
+} ulme;
+
 /*
 ** =============================================================================
 **                       EXPORTED FUNCTION DECLARATION
@@ -32,7 +37,7 @@
 */
 
 void terminal( uint8_t *msg, uint8_t size );
-
+void user_layer_init(PacketBuffer *pTxBuf);
 void simpleRegPrint(void);
 void detailRegPrint(void);
 const char *byte_to_binary(int x);

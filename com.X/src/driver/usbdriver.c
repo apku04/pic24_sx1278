@@ -63,9 +63,8 @@ bool usb_print(void *data) {
             ret = true;
             break;
         } else {
-            LED_RED_1_TOGGLE;
             retries--;
-            delay_ms(200);
+            //delay_ms(200);
         }
     }
     return ret;

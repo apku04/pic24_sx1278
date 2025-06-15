@@ -1,0 +1,105 @@
+@startuml
+title Detailed Activity Diagram: Incoming Network Layer
+
+start
+
+partition "network_interface (Incoming)" {
+    :network_interface(iKey);
+    if (iKey == INCOMING) then (yes)
+        :Search for pending packet in pktRxBuf;
+        if (Packet Found) then (yes)
+            :network_incoming(&pkt);
+            if (pkt.control_app == BEACON) then (yes)
+                :process_received_beacon(pkt);
+                if (Signal Strength Valid) then (yes)
+                    :Verify CRC using verify_crc8(pkt->data, length, received_crc);
+                    if (CRC Check Passed) then (yes)
+                        :Update/Add entry to routing table;
+                        :Write packet to pktRxBuf;
+                    else (no)
+                        :Print "CRC Check Failed: Packet corrupted";
+                        :Discard packet;
+                    endif
+                else (no)
+                    :Print "Unusable beacon";
+                endif
+            else if (pkt.destination_adr == BROADCAST && pkt.TTL > 0) then (yes)
+                :handle_broadcast_packet(pkt);
+                if (Duplicate Found) then (yes)
+                    :Print "Duplicate packet, ignoring";
+                else (no)
+                    :Update rxHist;
+                    :Decrement TTL;
+                    :Set pkt.pOwner = MAC;
+                    :Set pkt.pktDir = RETX;
+                    :Write packet to pktTxBuf;
+                    :Set pkt.pOwner = APP;
+                    :Set pkt.pktDir = INCOMING;
+                    :Write packet to pktRxBuf;
+                endif
+            else (Regular Packet)
+                :handle_regular_packet(pkt);
+                if (Buffer Not Full) then (yes)
+                    :Write packet to pktRxBuf;
+                else (no)
+                    :Print "Reception buffer full";
+                endif
+            endif
+        else (no)
+            :Print "No pending packets for INCOMING";
+        endif
+    else (no)
+        :Return (Not Incoming);
+    endif
+}
+
+partition "CRC Operations" {
+    :verify_crc8(data, length, received_crc);
+    :Calculate CRC for received data;
+    if (Computed CRC == received_crc) then (yes)
+        :Return true (CRC valid);
+    else (no)
+        :Return false (CRC invalid);
+    endif
+}
+
+partition "process_received_beacon" {
+    :Extract source_adr and RSSI;
+    if (Signal Strength < Threshold) then (yes)
+        :Print "Unusable beacon";
+        :Return false;
+    else (no)
+        :Check if beacon source == self;
+        if (Yes) then (yes)
+            :Print "Beacon from self, ignoring";
+        else (no)
+            :Update/Add source_adr to routing table;
+            :Check all entries in beacon;
+            if (Better hop_count) then (yes)
+                :Update routing table entry;
+            else if (New entry) then (yes)
+                :Add to routing table;
+            endif
+            :Write packet to pktRxBuf;
+        endif
+    endif
+}
+
+partition "handle_broadcast_packet" {
+    :Check for duplicates in rxHist;
+    if (Duplicate Found) then (yes)
+        :Print "Duplicate packet, ignoring";
+    else (no)
+        :Update rxHist (src_adr, seq_num);
+        :Decrement pkt.TTL;
+        :Set pkt.pOwner = MAC;
+        :Set pkt.pktDir = RETX;
+        :Write packet to pktTxBuf;
+        :Set pkt.pOwner = APP;
+        :Set pkt.pktDir = INCOMING;
+        :Write packet to pktRxBuf;
+    endif
+}
+
+stop
+@enduml

@@ -60,7 +60,7 @@ void PIN_MANAGER_Initialize (void)
     /****************************************************************************
      * Setting the Output Latch SFR(s)
      ***************************************************************************/
-    LATA = 0x0004;
+    LATA = 0x0000;
     LATB = 0x0080;
 
     /****************************************************************************
@@ -91,11 +91,11 @@ void PIN_MANAGER_Initialize (void)
      ***************************************************************************/
     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
 
+    RPOR3bits.RP7R = 0x0009;    //RB7->SPI1:SS1OUT
     RPOR4bits.RP8R = 0x0008;    //RB8->SPI1:SCK1OUT
+    RPINR0bits.INT1R = 0x0004;    //RB4->EXT_INT:INT1
     RPINR20bits.SDI1R = 0x0009;    //RB9->SPI1:SDI1
     RPOR7bits.RP15R = 0x0007;    //RB15->SPI1:SDO1
-    RPOR3bits.RP7R = 0x0009;    //RB7->SPI1:SS1OUT
-    RPINR0bits.INT1R = 0x0004;    //RB4->EXT_INT:INT1
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
 

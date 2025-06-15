@@ -50,11 +50,12 @@
 #include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "tmr2.h"
-#include "tmr1.h"
-#include "spi1.h"
 #include "usb/usb.h"
+#include "spi1.h"
 #include "ext_int.h"
+#include "tmr1.h"
+#include "memory/flash.h"
+#include "tmr2.h"
 #include "interrupt_manager.h"
 #include "traps.h"
 

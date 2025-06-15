@@ -1,0 +1,73 @@
+@startuml
+title Detailed Activity Diagram: MAC Layer (zeus.c)
+
+start
+
+partition "Initialization" {
+    :mac_layer_init(pRxBuf, pTxBuf);
+    :Set pktRxBuf and pktTxBuf;
+    :Set headerSize to MAC_HEADER_SIZE;
+    :Set mAddr = 4;
+    :Initialize random seed (srand);
+}
+
+partition "mac_interface" {
+    :mac_interface(iKey);
+    if (iKey == OUTGOING || RETX) then (yes)
+        :Search for pending packet in pktTxBuf;
+        if (Packet Found) then (yes)
+            :mac_outgoing(&pkt);
+            :Add headerSize to pkt->length;
+            :Set pkt->source_adr = mAddr;
+            :Set pkt->control_mac = 0;
+            :Set pkt->protocol_Ver = 10;
+            if (pkt->destination_adr == BROADCAST) then (yes)
+                :Set mBcast = YES;
+            else (no)
+                :Set mBcast = NO;
+            endif
+            :Call aloha_channel_access(pkt);
+        else (no)
+            :Print "No pending packets for OUTGOING";
+        endif
+    else if (iKey == INCOMING) then (yes)
+        :Search for pending packet in pktRxBuf;
+        if (Packet Found) then (yes)
+            :mac_incoming(&pkt);
+            if (pkt->source_adr != mAddr) then (yes)
+                if (pkt->destination_adr == BROADCAST ||
+                    pkt->destination_adr == mAddr ||
+                    pkt->destination_adr == 0) then (yes)
+                    :Set pkt->pOwner = NET;
+                    :Set pkt->pktDir = INCOMING;
+                    if (Buffer Not Full) then (yes)
+                        :write_packet(pktRxBuf, pkt);
+                    else (no)
+                        :Print "Reception buffer full";
+                    endif
+                endif
+            endif
+        else (no)
+            :Print "No pending packets for INCOMING";
+        endif
+    else (Invalid iKey)
+        :Set ret = GLOB_ERROR_INVALID_PARAM;
+    endif
+}
+
+partition "aloha_channel_access" {
+    :Calculate initial delay (rand % 10 + 2);
+    :delay_ms(di * 20);
+    :Check channel status (sx1278_get_carrier_detect_average);
+    while (Channel Busy) is (yes)
+        :Turn on LED_B;
+        :Calculate random delay (rand % 10 + 2);
+        :delay_ms(d * 200);
+        :Recheck channel status;
+    endwhile
+    :Turn off LED_B;
+    :transmitFrame(pkt);
+}
+
+stop
+@enduml

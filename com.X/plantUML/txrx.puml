@@ -1,0 +1,30 @@
+@startuml
+
+' Sequence Diagram: Packet Transmission and Reception
+
+actor "User" as user
+participant "Application Layer" as app
+participant "Network Layer" as net
+participant "MAC Layer" as mac
+participant "HAL" as hal
+participant "SX1278 Driver" as sx1278
+
+' Transmission Flow
+user -> app : Initiate packet transmission
+app -> net : Prepare packet with network headers
+net -> mac : Add MAC headers
+mac -> hal : Request hardware to send packet
+hal -> sx1278 : Transmit packet over LoRa
+sx1278 --> hal : Transmission status (Success/Failure)
+hal --> mac : Report status to MAC Layer
+mac --> net : Update network status
+net --> app : Report success or failure
+
+' Reception Flow
+sx1278 --> hal : Receive packet from LoRa
+hal --> mac : Pass received packet to MAC Layer
+mac --> net : Verify and process packet
+net --> app : Deliver packet to Application Layer
+app --> user : Notify user of packet reception
+
+@enduml

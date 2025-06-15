@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time USB Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+
+<table id="data-table">
+    <thead>
+        <tr>
+            <th>rssi</th>
+            <th>prssi</th>
+            <th>packet size</th>
+            <th>destination_adr</th>
+            <th>source_adr</th>
+            <th>sequence_num</th>
+            <th>control_mac</th>
+            <th>protocol_Ver</th>
+            <th>TTL</th>
+            <th>mesh_dest</th>
+            <th>mesh_control</th>
+            <th>reserved</th>
+            <th>control_app</th>
+            <th>length</th>
+            <th>data</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    const socket = new WebSocket("ws://localhost:8000/ws");
+    
+socket.onmessage = function(event) {
+    console.log("Received data:", event.data);  // Log the received data
+
+    const table = document.getElementById("data-table").getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+
+    // Split the message on the pipe to separate packet data from content
+    const [packet, content] = event.data.split('|');
+
+    // Combine both sets of data into one array for processing
+    const packetData = packet.trim().split(' ').concat(content.trim());
+
+    console.log("Processed data:", packetData);  // Log the processed data
+
+    for (let i = 0; i < packetData.length; i++) {
+        const newCell = newRow.insertCell(i);
+        const cellText = document.createTextNode(packetData[i]);
+        newCell.appendChild(cellText);
+    }
+};
+
+
+    socket.onclose = function(event) {
+        if (event.wasClean) {
+            console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+        } else {
+            console.error('Connection died');
+        }
+    };
+
+    socket.onerror = function(error) {
+        console.error(`[error] ${error.message}`);
+    };
+</script>
+
+</body>
+</html>

@@ -38,6 +38,8 @@
 #include "hal.h"
 #include "maclayer_defs.h"
 #include "networklayer.h"
+#include "packetBuffer.h"
+#include "timerdriver.h"
 
 
 /*
@@ -52,15 +54,11 @@
  * @param:
  * @return:
 */
-int dcf_backOff(void);
-void dcfInit(void);
-GLOB_RET mac_interface(char iKey, char addr, char len, void *frame);
+
+void mac_layer_init(PacketBuffer *pRxBuf, PacketBuffer *pTxBuf);
+GLOB_RET mac_interface(char iKey);
 GLOB_RET set_mac_address(uint8_t addr);
 uint8_t get_mac_address(void);
-GLOB_RET set_use_csma(uint8_t use_csma);
-uint8_t get_use_csma(void);
-
-
 
 
 /*
@@ -70,10 +68,6 @@ uint8_t get_use_csma(void);
 */
 
 
-#define START_SLOT_TIMER   slotTimer  = 0;
-#define START_DIFS_TIMER   difsTimer  = 0;
-#define START_ACK_TIMER    ackTimer   = 0;
-
 /*
  ** ==========================================================================
  **                       Extern Global variables
@@ -81,11 +75,6 @@ uint8_t get_use_csma(void);
  */
 
 extern mlme Mlme;
-
-extern  uint32_t txPktTimer;
-extern  uint32_t slotTimer;
-extern  uint32_t difsTimer;
-extern  uint32_t ackTimer;
 
 
 #endif //DCF_H

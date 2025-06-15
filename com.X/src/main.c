@@ -48,18 +48,23 @@
 
 //#include <stdio.h>
 //#include <string.h>
-
+#include <p24FJ64GB002.h>
+#include "globalInclude.h"
+#include "main.h"
 #include "sx1278.h"
 #include "../mcc_generated_files/system.h"
 #include "timerdriver.h"
-#include "main.h"
+#include "terminal.h"
+
 #include "usbdriver.h"
-#include "globalInclude.h"
-#include "ringBuffer.h"
 #include "networklayer.h"
 #include "maclayer.h"
+#include "packetBuffer.h"
 #include "../mcc_generated_files/ext_int.h"
 
+
+
+uint16_t seq = 0;
 
 uint8_t dcfTask = 0;
 slme SLME;
@@ -67,11 +72,15 @@ slme SLME;
 unsigned int pktTxCnt = 0;
 
 uint8_t packet_transmit_count = 0;
+uint8_t beacon_flag = 1;
+
+PacketBuffer pRxBuf, pTxBuf;
 
 
-void dcf_app_interface(Direction dcfTask);
-void app_outgoing(void);
-void app_incomming(void);
+void dcf_app_interface(Direction dcfTask, PacketBuffer *pRxBuf , PacketBuffer *pTxBuf);
+void app_outgoing(Packet *pkt, PacketBuffer *pTxBuf);
+void app_incomming( Packet *pkt, PacketBuffer *pTxBuf );
+void beaconkHandler(void);
 
 
 /*
@@ -81,22 +90,71 @@ int main(void)
 {
     // initialize the device
     SYSTEM_Initialize();
-    RF_ON = 1;
-    setupLora();
+   
+    init_packet_buffer(&pRxBuf);
+    init_packet_buffer(&pTxBuf);
+    network_layer_init(&pRxBuf, &pTxBuf);
+    mac_layer_init(&pRxBuf, &pTxBuf);
+    user_layer_init(&pTxBuf);
     
+    /* initialize function pointer to beaconkHandler */
+    cb_timer ptr_comTaskHandler_cb = beaconkHandler;
+    /* register the callback function */
+    register_timer_cb(ptr_comTaskHandler_cb);
+    
+    RF_ON = 1;
+    setup_lora(&pRxBuf, &pTxBuf);
     initiate_receiver();
     
-    opmInit();
-    dcfInit();
-    
     Direction dcfTask = OUTGOING;
+    
     while (true)
     {
-        dcf_app_interface(dcfTask);
-        dcfTask = (dcfTask == OUTGOING) ? INCOMING : OUTGOING;
+        dcf_app_interface(dcfTask, &pRxBuf, &pTxBuf);
+        network_interface(dcfTask);
+        mac_interface(dcfTask);
+
+        switch(dcfTask) {
+            case OUTGOING:
+                dcfTask = INCOMING;
+                break;
+            case INCOMING:
+                dcfTask = RETX;
+                break;
+            case RETX:
+                dcfTask = OUTGOING;
+                break;
+            default:
+                // Handle unexpected value
+                break;
+        }
     }
 
     return 1;
+}
+
+void beaconkHandler(void)
+{
+    if (GLOB_ERROR_BUFFER_FULL != buffer_full(&pTxBuf))
+    {
+        if(beacon_flag)
+        {
+            Packet pkt;
+            seq++;
+            pkt.pOwner = NET;
+            pkt.pktDir = OUTGOING;
+
+            pkt.control_app = BEACON;
+            pkt.length = 4 + 0; // Add APP header + data
+            pkt.sequence_num = seq;
+            
+            
+
+            write_packet(&pTxBuf, &pkt);
+        }
+    }else {
+        print("Buffer full\n\r");
+    }
 }
 
 
@@ -107,17 +165,26 @@ int main(void)
 ** Created....: 01.05.2015 by Achuthan
 ** Modified...: dd.mm.yyyy by nn
 ==============================================================================*/
-void dcf_app_interface(Direction dcfTask)
+void dcf_app_interface(Direction dcfTask, PacketBuffer *pRxBuf , PacketBuffer *pTxBuf)
 {
     switch(dcfTask)
-    {
+    { 
         case INCOMING:
-            app_incomming();
+        {
+            Packet pkt = search_pending_packet(pRxBuf, INCOMING, APP);
+            if(pkt.pktDir != DIR_EMPTY && pkt.pOwner != OWNER_EMPTY){
+                app_incomming(&pkt, pTxBuf);
+            }
             break;
-
+        }
         case  OUTGOING:
-            app_outgoing();
+        {
+            Packet pkt = search_pending_packet(pTxBuf, OUTGOING, APP);
+            if(pkt.pktDir != DIR_EMPTY && pkt.pOwner != OWNER_EMPTY){
+                app_outgoing(&pkt, pTxBuf);
+            }
             break;
+        }
 
         default:
             break;
@@ -132,60 +199,23 @@ void dcf_app_interface(Direction dcfTask)
 ** Created....: 01.05.2015 by Achuthan
 ** Modified...: dd.mm.yyyy by nn
 ==============================================================================*/
-void app_outgoing(void)
+void app_outgoing(Packet *pkt, PacketBuffer *pTxBuf)
 {
-    if (GLOB_ERROR_BUFFER_EMPTY != buffer_empty(&txBuf))
+    if (GLOB_ERROR_BUFFER_FULL != buffer_full(pTxBuf))
     {
-        const size_t max_data_size = 50;
-        const int destination = 255;
-        uint8_t data[PACKET_SIZE];
-        uint8_t len = 0;
+        seq++;
+        pkt->pOwner = NET;
+        pkt->pktDir = OUTGOING;
         
-        data[0] = 1;
+        pkt->control_app = PAYLOAD;
+        pkt->length = pkt->length + 4; // Add APP header to total length
+        pkt->sequence_num = seq;
         
-        
-        uint8_t fixed_buffer[PACKET_SIZE];
-        EX_INT1_InterruptDisable();
-        read_buffer(fixed_buffer, &txBuf); // Read into fixed_buffer
-        EX_INT1_InterruptEnable();
-
-        // Copy up to max_data_size bytes from fixed_buffer to data, stopping at the null terminator
-        size_t i;
-        for (i = 0; i < max_data_size && fixed_buffer[i] != '\0'; i++) {
-            data[1 + i] = fixed_buffer[i];
-        }
-        data[1 + i] = '\0'; // Add null terminator to the end of the data
-        len = 1 + i;
-        
-        if ( i+1 > max_data_size)
-        {
-            len = max_data_size;
-            print("Packet size is too long, sat to max");
-            delay_ms(100);
-            
-        }
-
-        
-        data[1] = 1+i;
-        initiate_sender();
-
-        //op_hexdump(1, "----- APP LAYER ----", data, len, true);
-
-        // Send data over network interface
-        if (network_interface(OUTGOING, destination, (1+i), data) == -1)
-        {
-            print("Error: Failed to send data over network interface\n");
-        }
-        else
-        {
-            print("Transmission completed\n");
-        }
-
-        // Update packet transmit count
-        packet_transmit_count++;
+        write_packet(pTxBuf, pkt);
+    }else {
+        print("Buffer full\n\r");
     }
 }
-
 
 
 /*==============================================================================
@@ -195,25 +225,38 @@ void app_outgoing(void)
 ** Created....: 01.05.2015 by Achuthan
 ** Modified...: dd.mm.yyyy by nn
 ==============================================================================*/
-void app_incomming(void)
+void app_incomming( Packet *pkt, PacketBuffer *pTxBuf )
 {
-    if (GLOB_ERROR_BUFFER_EMPTY != buffer_empty(&rxBuf))
+        // EX_INT1_InterruptDisable();
+        // EX_INT1_InterruptEnable();
+    packet_print_out(1, NULL, pkt);
+    
+    if(pkt->control_app == PING)
     {
-        EX_INT1_InterruptDisable();
-        uint8_t fixed_buffer[64];
-        uint8_t data[64];
-        read_buffer(fixed_buffer, &rxBuf);
-        EX_INT1_InterruptEnable();
-        
-        
-        uint8_t len = fixed_buffer[1];
-        
-        memcpy(data, &fixed_buffer[2], len );
-        
-        data[len] = '\0';
-        
-        op_hexdump(1, "----- <RX> ----", data, len, false);
+        Packet pkt;
 
+        // Initialize the packet data with null characters.
+        // The size of pkt.data should be defined somewhere as 50 or more.
+        memset(pkt.data, 0, sizeof(pkt.data));
+
+        pkt.pOwner = NET;
+        pkt.pktDir = OUTGOING;
+        pkt.control_app = PONG;
+
+        pkt.length = 4 + 0; // Add APP header + data
+
+        // Send the packet if the buffer is not full.
+        if (buffer_full(pTxBuf) != GLOB_ERROR_BUFFER_FULL) {
+            write_packet(pTxBuf, &pkt);
+        } else {
+            print("Buffer full\n");
+        }
     }
+    //print_routing_table();
+}
+
+void send_beacon_flag(uint8_t flag)
+{
+    beacon_flag = flag;
 }
 

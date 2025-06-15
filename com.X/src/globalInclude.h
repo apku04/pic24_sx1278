@@ -36,12 +36,14 @@
 #include <stdint.h>          /* For uint32_t definition */
 #include <stdio.h>
 #include <stdlib.h>
-#include <p24FJ64GB002.h>
+
 
 
 //#define SIMULATOR 
 
 void op_hexdump(int level, const char *title, const void *buf, size_t len, char newline);
+void print_routing_table(void);
+
 
 /*
 ** ==========================================================================
@@ -50,13 +52,45 @@ void op_hexdump(int level, const char *title, const void *buf, size_t len, char 
 */
 
 #define BUFFER_SIZE 8
-#define PACKET_SIZE 64
-
+#define PACKET_SIZE 70
+#define PACKET_BUFFER_SIZE 10
+#define SIGNAL_STRENGTH_THRESHOLD -100
+#define BROADCAST 255
 
 typedef enum {
+    DEVICE_ID = 0,
+    RADIO_FREQ1,
+    RADIO_FREQ2,
+    RADIO_FREQ3,
+    RADIO_FREQ4,
+    RADIO_DR,
+    RADIO_TX_PWR,        
+    PARAMETER_N,
+    FLASH_SIZE
+} addrEnum;
+
+typedef enum {
+    DIR_EMPTY,
     OUTGOING,
-    INCOMING
+    INCOMING,
+    RETX
 } Direction;
+
+typedef enum {
+    OWNER_EMPTY,  
+    PHY,
+    MAC,
+    NET,
+    APP
+} Owner;
+
+typedef enum {
+    BEACON,
+    PAYLOAD,
+    ACK,
+    PING,
+    PONG
+} PacketType;
 
 /**
  * Enumeration containing different return types
@@ -92,19 +126,20 @@ typedef enum
   GLOB_ERROR_POINTER_MISMATCH = -17,
           
   GLOB_WARNING_PARAM_NOT_SET    = -20, /* There requiret parameter is not set */
-  GLOB_ERROR_MEMORY_ALLOCATION  = -21
+  GLOB_ERROR_MEMORY_ALLOCATION  = -21,
+  GLOB_ERROR_BEACON_PROCESSING_FAILED = -22        
 }GLOB_RET;
 
  /* ********************** LEDs *********************** */
 
-#define LED_GREEN_1 LATAbits.LATA2
-#define LED_GREEN_1_TOGGLE LED_GREEN_1   = ~LED_GREEN_1
+#define LED_A LATAbits.LATA2
+#define LED_A_TOGGLE LED_A   = ~LED_A
 
-#define LED_BLUE_1 LATBbits.LATB14
-#define LED_BLUE_1_TOGGLE LED_BLUE_1 = ~LED_BLUE_1
+#define LED_B LATBbits.LATB14
+#define LED_B_TOGGLE LED_B = ~LED_B
 
-#define LED_RED_1 LATBbits.LATB5
-#define LED_RED_1_TOGGLE LED_RED_1 = ~LED_RED_1
+#define LED_C LATBbits.LATB5
+#define LED_C_TOGGLE LED_C = ~LED_C
 
 
  /* ********************** TIMERs  *********************** */
@@ -128,6 +163,18 @@ typedef enum
 ** ==========================================================================
 */
 
+
+typedef struct {
+    uint8_t deviceID;
+    uint8_t radioFreq1;
+    uint8_t radioFreq2;
+    uint8_t radioFreq3;
+    uint8_t radioFreq4;
+    uint8_t radioDataRate;
+    uint8_t radioTxPwr;
+    uint8_t paramN;
+} deviceData_t;
+
 typedef struct
 {
     unsigned volatile int read_pointer;
@@ -136,6 +183,34 @@ typedef struct
     uint8_t buffer[BUFFER_SIZE][PACKET_SIZE];
 }rBufPar;
 
+typedef struct __attribute__((__packed__)) {
+    uint8_t pktDir;
+    uint8_t pOwner;
+    int16_t rssi;
+    int16_t prssi;
+    uint8_t rxCnt;
+    uint8_t destination_adr; // 0
+    uint8_t source_adr; // 1
+    uint16_t sequence_num; // 2, 3
+    uint8_t control_mac; // 4
+    uint8_t protocol_Ver; // 5
+    uint8_t TTL; // 6
+    uint8_t mesh_dest; // 7
+    uint8_t mesh_tbl_entries; // 8
+    uint8_t mesh_src; // 9
+    uint8_t control_app; // 10
+    uint8_t length; // 11
+    uint8_t data[50];
+} Packet;
+
+typedef struct {
+    Packet buffer[PACKET_BUFFER_SIZE];
+    int read_pointer;
+    int write_pointer;
+    int data_size;
+} PacketBuffer;
+
+void packet_print_out(int level, const char *title, Packet *packet) ;
 /*
 ** =============================================================================
 **                       EXPORTED FUNCTION DECLARATION
@@ -154,13 +229,10 @@ extern unsigned int oneMilliTimer;
 extern unsigned int oneTikTimer;
 extern unsigned long long longCounter_MS;
 
-// External Buffer var
-extern rBufPar txBuf, rxBuf;
 
 // External nrf config
 extern char rxClockOutSize;
 
-// External Radio
-extern char carrierDetect;
+extern uint8_t sniffer;
 
 #endif	/* GLOB_H */

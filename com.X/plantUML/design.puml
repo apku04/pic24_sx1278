@@ -1,0 +1,116 @@
+@startuml
+
+' Base package structure
+top to bottom direction
+package "Application Layer" {
+    class Terminal {
+        +menu()
+        +parseArgs()
+        +terminal()
+        +help_command()
+        +set_commands()
+        +get_commands()
+        +send_commands()
+    }
+    Terminal -- PacketBuffer
+    Terminal -- FlashHandler
+    Terminal -- "1" Ulme
+}
+
+package "Network Layer" {
+    class NetworkLayer {
+        +network_layer_init()
+        +network_interface()
+        +handle_broadcast_packet()
+        +process_received_beacon()
+    }
+    class RoutingEntry {
+        +destination : uint8_t
+        +next_hop : uint8_t
+        +hop_count : uint8_t
+    }
+    class nlme {
+        +pktRxBuf : PacketBuffer
+        +pktTxBuf : PacketBuffer
+        +routing_table : RoutingEntry[]
+        +ttl : char
+        +mesh_dest : uint8_t
+    }
+    NetworkLayer -- PacketBuffer
+    NetworkLayer -- RoutingEntry
+    NetworkLayer -- "1" nlme
+}
+
+package "MAC Layer" {
+    class MACLayer {
+        +mac_layer_init()
+        +mac_interface()
+        +aloha_channel_access()
+        +set_mac_address()
+    }
+    class mlme {
+        +pktRxBuf : PacketBuffer
+        +pktTxBuf : PacketBuffer
+        +headerSize : char
+        +mAddr : char
+    }
+    MACLayer -- PacketBuffer
+    MACLayer -- "1" mlme
+}
+
+package "Utilities" {
+    class FlashHandler {
+        +writeFlash()
+        +readFlash()
+    }
+    class RingBuffer {
+        +ringBuffer_init()
+        +write_buffer()
+        +read_buffer()
+    }
+    FlashHandler -- deviceData_t
+    RingBuffer -- PacketBuffer
+}
+
+package "Drivers" {
+    class TimerDriver {
+        +delay_ms()
+        +timer_driver()
+        +register_timer_cb()
+    }
+    class USBDriver {
+        +usbdriver_init()
+        +usbdriver_handler()
+        +usb_print()
+    }
+    TimerDriver -- Terminal
+    USBDriver -- Terminal
+}
+
+package "Hardware Abstraction Layer" {
+    class HAL {
+        +transmitFrame()
+        +receiveMode()
+    }
+    HAL -- Packet
+    HAL -- USBDriver
+}
+
+package "Data Structures" {
+    class Packet {
+        +source_adr : uint8_t
+        +destination_adr : uint8_t
+        +length : uint8_t
+        +data : uint8_t[50]
+    }
+    class PacketBuffer {
+        +read_pointer : int
+        +write_pointer : int
+        +buffer : Packet[]
+        +write_packet()
+        +read_packet()
+    }
+    PacketBuffer -- Packet
+}
+
+@enduml

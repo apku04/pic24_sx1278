@@ -1,0 +1,62 @@
+@startuml
+title Detailed Activity Diagram: Outgoing Network Layer
+
+start
+
+partition "Initialization" {
+    :network_layer_init(pRxBuf, pTxBuf);
+    :Set pktRxBuf and pktTxBuf;
+    :Set ttl, headerSize, networkSize;
+    :Clear routing table (memset);
+}
+
+partition "network_interface (Outgoing)" {
+    :network_interface(iKey);
+    if (iKey == OUTGOING) then (yes)
+        :Search for pending packet in pktTxBuf;
+        if (Packet Found) then (yes)
+            :network_outgoing(&pkt);
+            :Set pkt.pOwner = MAC;
+            :Set pkt.pktDir = OUTGOING;
+            :Set pkt.TTL = Nlme.ttl;
+            :Set pkt.mesh_src = get_mac_address();
+            :Set pkt.mesh_dest = Nlme.mesh_dest;
+            if (control_app == BEACON || PING || PONG) then (yes)
+                if (control_app == PING || PONG) then (yes)
+                    :Set TTL = 0;
+                endif
+                :Set destination_adr = BROADCAST;
+                if (Nlme.num_entries > 0) then (yes)
+                    :Embed routing table into pkt->data;
+                    :Calculate CRC using calculate_crc8(pkt->data, length);
+                    :Append CRC to pkt->data;
+                    :Update pkt->length;
+                endif
+            else (Regular Packet)
+                :Set destination_adr = find_next_hop();
+                :Add headerSize to pkt->length;
+            endif
+            :Check if buffer_full(pktTxBuf);
+            if (Buffer Not Full) then (yes)
+                :write_packet(pktTxBuf, pkt);
+            else (no)
+                :Print "Network Outgoing: Buffer full";
+            endif
+        else (no)
+            :Print "No pending packets for OUTGOING";
+        endif
+    else (no)
+        :Return (Not Outgoing);
+    endif
+}
+
+partition "CRC Operations" {
+    :calculate_crc8(data, length);
+    :Iterate through data bytes;
+    :Perform bitwise XOR and shifts;
+    :Apply CRC polynomial (0x07);
+    :Return computed CRC;
+}
+
+stop
+@enduml

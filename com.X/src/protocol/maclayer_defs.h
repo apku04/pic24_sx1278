@@ -11,6 +11,8 @@ typedef enum {
 } CSMA_CMD;
 
 typedef struct {
+    PacketBuffer *pktRxBuf;
+    PacketBuffer *pktTxBuf;
     char headerSize;
     char mBcast;
     char mAddr;

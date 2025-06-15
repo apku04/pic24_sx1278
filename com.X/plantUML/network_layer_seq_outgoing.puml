@@ -1,0 +1,98 @@
+@startuml
+title Full Network Layer Sequence Diagram
+
+actor Application
+participant "network_interface()" as NI
+participant "network_outgoing()" as NO
+participant "network_incoming()" as NIc
+participant "process_received_beacon()" as PRB
+participant "handle_broadcast_packet()" as HBP
+participant "handle_regular_packet()" as HRP
+participant "verify_crc8()" as VCRC
+participant "calculate_crc8()" as CCRC
+participant "Buffers (Tx/Rx)" as Buffers
+participant "Routing Table" as RT
+
+== Outgoing Logic ==
+Application -> NI: Call network_interface(OUTGOING)
+NI -> Buffers: Search pending packet in pktTxBuf
+Buffers --> NI: Return Packet (if found)
+
+alt Packet Found
+    NI -> NO: Call network_outgoing(&pkt)
+    NO -> NO: Set pkt.pOwner = MAC, pkt.pktDir = OUTGOING
+    NO -> NO: Set pkt.TTL, pkt.mesh_src, pkt.mesh_dest
+    alt control_app == BEACON/PING/PONG
+        NO -> NO: Set destination_adr = BROADCAST
+        alt control_app == PING/PONG
+            NO -> NO: Set TTL = 0
+        end
+        alt Routing Table has entries
+            NO -> CCRC: Call calculate_crc8(pkt->data, length)
+            CCRC --> NO: Return Computed CRC
+            NO -> NO: Append CRC to pkt->data
+            NO -> NO: Update pkt->length
+        end
+    else
+        NO -> NO: Set destination_adr = find_next_hop()
+        NO -> NO: Add headerSize to pkt->length
+    end
+    NO -> Buffers: Check if buffer_full(pktTxBuf)
+    alt Buffer Not Full
+        NO -> Buffers: write_packet(pktTxBuf, pkt)
+    else
+        NO -> Application: Print "Network Outgoing: Buffer full"
+    end
+else
+    NI -> Application: Print "No pending packets for OUTGOING"
+end
+
+== Incoming Logic ==
+Application -> NI: Call network_interface(INCOMING)
+NI -> Buffers: Search pending packet in pktRxBuf
+Buffers --> NI: Return Packet (if found)
+
+alt Packet Found
+    NI -> NIc: Call network_incoming(&pkt)
+    alt pkt.control_app == BEACON
+        NIc -> PRB: Call process_received_beacon(pkt)
+        PRB -> PRB: Extract source_adr, RSSI
+        PRB -> PRB: Check signal strength threshold
+        alt Signal Strength Valid
+            PRB -> VCRC: Call verify_crc8(pkt->data, length, received_crc)
+            VCRC --> PRB: Return CRC Validity
+            alt CRC Check Passed
+                PRB -> RT: Update/Add entry to routing table
+                PRB -> Buffers: write_packet(pktRxBuf, pkt)
+            else
+                PRB -> Application: Print "CRC Check Failed: Packet corrupted"
+            end
+        else
+            PRB -> Application: Print "Unusable beacon"
+        end
+    else
+        alt pkt.destination_adr == BROADCAST && pkt.TTL > 0
+            NIc -> HBP: Call handle_broadcast_packet(pkt)
+            HBP -> HBP: Check for duplicates in rxHist
+            alt Duplicate Found
+                HBP -> Application: Print "Duplicate packet, ignoring"
+            else
+                HBP -> HBP: Update rxHist, Decrement TTL
+                HBP -> Buffers: write_packet(pktTxBuf, pkt for RETX)
+                HBP -> Buffers: write_packet(pktRxBuf, pkt for APP)
+            end
+        else
+            NIc -> HRP: Call handle_regular_packet(pkt)
+            HRP -> Buffers: Check if buffer_full(pktRxBuf)
+            alt Buffer Not Full
+                HRP -> Buffers: write_packet(pktRxBuf, pkt)
+            else
+                HRP -> Application: Print "Reception buffer full"
+            end
+        end
+    end
+else
+    NI -> Application: Print "No pending packets for INCOMING"
+end
+
+@enduml

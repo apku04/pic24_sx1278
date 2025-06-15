@@ -26,14 +26,16 @@
 #define SX1278_H
 
 #include <stdint.h>
+#include "globalInclude.h"
 
-void printAllRegisters(void);
-uint8_t setupLora(void);
-uint8_t send(uint8_t* data, uint8_t len);
+void print_all_registers(void);
+uint8_t setup_lora(PacketBuffer *pRxBuf, PacketBuffer *pTxBuf);
+uint8_t send(uint8_t *payload, uint8_t length);
 uint8_t initiate_receiver(void);
 uint8_t initiate_sender(void);
 uint16_t SPI1_Exchange8bitBuffer(uint8_t *dataTransmitted, uint16_t byteCount, uint8_t *dataReceived);
 void radio_irq_handler( void );
+uint8_t sx1278_get_carrier_detect_average(void);
 
 
 uint8_t sx1278_set_channel(uint32_t freq);

@@ -11,8 +11,8 @@ build/default/production/src/protocol/networklayer.o: \
  src/driver/../../mcc_generated_files/usb/usb_hal.h \
  src/driver/../../mcc_generated_files/usb/usb_hal_pic24f.h \
  src/driver/../../mcc_generated_files/usb/usb_device_cdc.h \
- src/driver/../../mcc_generated_files/usb/usb.h \
- src/protocol/maclayer_defs.h src/system/ringBuffer.h src/main.h
+ src/driver/../../mcc_generated_files/usb/usb.h src/driver/timerdriver.h \
+ src/protocol/maclayer_defs.h src/system/packetBuffer.h src/main.h
 
 src/protocol/networklayer.h:
 
@@ -48,8 +48,10 @@ src/driver/../../mcc_generated_files/usb/usb_device_cdc.h:
 
 src/driver/../../mcc_generated_files/usb/usb.h:
 
+src/driver/timerdriver.h:
+
 src/protocol/maclayer_defs.h:
 
-src/system/ringBuffer.h:
+src/system/packetBuffer.h:
 
 src/main.h:

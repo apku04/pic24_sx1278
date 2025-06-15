@@ -27,6 +27,10 @@
 
 #include <stdint.h> /* For uint32_t definition */
 
+typedef void (*cb_timer)(void);
+void register_timer_cb(cb_timer ptr_reg_cb);
+
+
 void timer_driver(void);
 
 void delay_ms(uint32_t t);

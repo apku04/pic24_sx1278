@@ -1,0 +1,51 @@
+@startuml
+
+' Activity Diagram: Detailed MAC Layer with mac_interface
+
+start
+:MAC Layer receives interface request (mac_interface);
+:Check request type (OUTGOING, INCOMING, or RETX);
+
+if (Request == OUTGOING or RETX?) then (Yes)
+    :Search for pending outgoing packet;
+    if (Valid Packet Found?) then (Yes)
+        :Prepare outgoing packet;
+        :Add MAC headers;
+        :Call ALOHA Channel Access;
+        :Check if channel is free;
+        if (Channel Busy?) then (Yes)
+            :Wait for random backoff time;
+            :Retry checking channel;
+        else (No)
+            :Send packet request to HAL;
+            :Transmit packet via SX1278 Driver;
+            if (Transmission Successful?) then (Yes)
+                :Notify Network Layer of Success;
+            else (No)
+                :Report Transmission Failure;
+            endif
+        endif
+    else (No)
+        :Return Error: No valid outgoing packet;
+    endif
+
+else if (Request == INCOMING?) then (Yes)
+    :Search for pending incoming packet;
+    if (Valid Packet Found?) then (Yes)
+        :Verify packet headers;
+        if (Headers Valid?) then (Yes)
+            :Forward packet to Network Layer;
+        else (No)
+            :Discard packet;
+        endif
+    else (No)
+        :Return Error: No valid incoming packet;
+    endif
+
+else (Invalid Request)
+    :Return Error: Invalid mac_interface parameter;
+endif
+
+stop
+
+@enduml

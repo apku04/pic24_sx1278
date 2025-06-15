@@ -3,23 +3,36 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/terminal.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/sx1278.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/usbdriver.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/packetBuffer.c</file>
             <file>file:/E:/work/lorapic24_alpha/com.X/src/debugprint.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/globalInclude.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/hal.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/ringBuffer.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer_defs.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/packetBuffer.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/terminal.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/usb/example_mcc_usb_cdc.c</file>
             <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.h</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/traps.c</file>
-            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/timerdriver.c</file>
             <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/sx1278.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/maclayer.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/system.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/terminal.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/usb/usb_descriptors.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/main.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/timerdriver.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/pin_manager.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/flashHandler.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/globalInclude.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/sx1278_register.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/hal.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/system/flashHandler.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/timerdriver.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/protocol/networklayer_defs.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/usb/usb_device_cdc.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/memory/flash.h</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/mcc_generated_files/spi1.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/nbproject/Makefile-impl.mk</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/hal.c</file>
+            <file>file:/E:/work/lorapic24_alpha/com.X/src/driver/usbdriver.c</file>
         </group>
     </open-files>
 </project-private>

@@ -28,11 +28,14 @@
 
 #include <stdint.h>
 
-
-#define MAC_HEADER_SIZE 14
+#define APP_HEADER_SIZE 4
+#define NET_HEADER_SIZE 5
+#define MAC_HEADER_SIZE 3
+#define PACKET_HEADER_SIZE (MAC_HEADER_SIZE+NET_HEADER_SIZE+APP_HEADER_SIZE)
+#define META_DATA_SIZE 3
 #define DATA_LEN 50
 
-#define BUFFER_DATA_SIZE (MAC_HEADER_SIZE+DATA_LEN)
+#define BUFFER_DATA_SIZE (META_DATA_SIZE+PACKET_HEADER_SIZE+DATA_LEN)
 
 #define RSSICORR 164
 
@@ -59,6 +62,8 @@ typedef struct slme {
 
 extern slme SLME;
 extern uint8_t printAllReg, tx_test;
+
+void send_beacon_flag(uint8_t flag);
 
 
 #endif /* MAIN_H */

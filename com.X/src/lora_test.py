@@ -262,8 +262,8 @@ def main(sender_port, receiver_port, baudrate):
 
 
 if __name__ == "__main__":
-    senderport = "COM35"  # Sender serial port
-    receiverport = "COM30"  # Receiver serial port
-    baud_rate = 115200
+    senderport = "COM30"  # Sender serial port
+    receiverport = "COM36"  # Receiver serial port
+    baud_rate = 57600
 
     main(senderport, receiverport, baud_rate)
