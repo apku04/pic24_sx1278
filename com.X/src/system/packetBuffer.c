@@ -63,29 +63,22 @@ GLOB_RET search_packet_buffer(PacketBuffer *pBuf, uint8_t source_adr, uint32_t s
 Packet search_pending_packet(PacketBuffer *pBuf, Direction dir, Owner me) {
     // Iterate through the packet buffer
     for (int i = 0; i < pBuf->data_size; i++) {
-        // Calculate the index
+        // Calculate the index of the current element
         int index = (pBuf->read_pointer + i) % PACKET_BUFFER_SIZE;
-        
-        // Get the current packet
+
         Packet *current_packet = &pBuf->buffer[index];
-        
-        // Check if the packet's direction and owner match the given direction and owner
+
+        // Check if the packet's direction and owner match
         if (current_packet->pktDir == dir && current_packet->pOwner == me) {
-            // If a match is found, create a copy of the packet
+            // Copy the packet before removing it from the buffer
             Packet copyPkt = *current_packet;
-            
-            // Clean the packet in the buffer
-            memset(current_packet, 0, sizeof(Packet));
-            
-            // Update the read_pointer and data_size of the PacketBuffer
-            pBuf->read_pointer = (pBuf->read_pointer + 1) % PACKET_BUFFER_SIZE;
-            pBuf->data_size--;
-            
-            // Return the copy of the packet
+
+            remove_packet_from_buffer(pBuf, current_packet);
+
             return copyPkt;
         }
     }
-    
+
     // If no match is found, return an empty packet
     Packet emptyPkt = {0};
     return emptyPkt;
@@ -99,17 +92,21 @@ bool remove_packet_from_buffer(PacketBuffer *pBuf, Packet *pkt) {
 
         // Check if the current packet is the one we're looking for
         if (&pBuf->buffer[index] == pkt) {
-            // Shift all remaining packets down
+            // Shift all remaining packets towards the read pointer
             for (int j = i; j < pBuf->data_size - 1; j++) {
                 int current_index = (pBuf->read_pointer + j) % PACKET_BUFFER_SIZE;
                 int next_index = (pBuf->read_pointer + j + 1) % PACKET_BUFFER_SIZE;
                 pBuf->buffer[current_index] = pBuf->buffer[next_index];
             }
 
-            // Decrease the data size
-            pBuf->data_size--;
+            // Clear the slot that now becomes free
+            int clear_index = (pBuf->read_pointer + pBuf->data_size - 1) % PACKET_BUFFER_SIZE;
+            memset(&pBuf->buffer[clear_index], 0, sizeof(Packet));
 
-            // Operation was successful
+            pBuf->data_size--;
+            // Adjust write pointer to the new free slot
+            pBuf->write_pointer = (pBuf->write_pointer + PACKET_BUFFER_SIZE - 1) % PACKET_BUFFER_SIZE;
+
             return true;
         }
     }
